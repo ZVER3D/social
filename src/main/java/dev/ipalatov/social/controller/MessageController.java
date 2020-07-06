@@ -1,10 +1,12 @@
 package dev.ipalatov.social.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import dev.ipalatov.social.domain.Message;
+import dev.ipalatov.social.domain.Views;
+import dev.ipalatov.social.dto.MessageDto;
+import dev.ipalatov.social.repo.MessageRepo;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +16,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import dev.ipalatov.social.domain.Message;
-import dev.ipalatov.social.domain.Views;
-import dev.ipalatov.social.repo.MessageRepo;
 
 @RestController
 @RequestMapping("message")
@@ -42,7 +40,9 @@ public class MessageController {
 
   @PostMapping
   @JsonView(Views.FullName.class)
-  public Message create(@RequestBody Message message) {
+  public Message create(@RequestBody MessageDto msg) {
+    Message message = new Message();
+    message.setText(msg.getText());
     message.setCreationDate(LocalDateTime.now());
 
     return messageRepo.save(message);
@@ -50,7 +50,7 @@ public class MessageController {
 
   @PutMapping("{message}")
   @JsonView(Views.FullName.class)
-  public Message update(@RequestBody Message message, @PathVariable Message messageFromDb) {
+  public Message update(@RequestBody MessageDto message, @PathVariable Message messageFromDb) {
     BeanUtils.copyProperties(message, messageFromDb, "id");
 
     return messageRepo.save(messageFromDb);
